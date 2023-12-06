@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
   
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
  
 class ProductController extends Controller
 {
@@ -11,12 +12,12 @@ class ProductController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $product = Product::orderBy('created_at', 'DESC')->get();
-  
-        return view('products.index', compact('product'));
-    }
-  
+{
+    $userId = Auth::id(); // Mendapatkan ID user yang login
+    $product = Product::where('user_id', $userId)->orderBy('created_at', 'DESC')->get();
+
+    return view('products.index', compact('product'));
+}
     /**
      * Show the form for creating a new resource.
      */
@@ -28,12 +29,15 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        Product::create($request->all());
- 
-        return redirect()->route('products')->with('success', 'Product added successfully');
-    }
+   public function store(Request $request)
+{
+    $userId = Auth::id(); // Mendapatkan ID user yang login
+    $request->request->add(['user_id' => $userId]); // Menambahkan user_id ke request
+    Product::create($request->all());
+
+    return redirect()->route('products')->with('success', 'Product added successfully');
+}
+
   
     /**
      * Display the specified resource.
